@@ -8,18 +8,25 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSelector } from "@/components/language-selector"
+import { useAuth } from "@/lib/auth-context"
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const { signInWithGoogle } = useAuth()
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true)
-    // Simulate login
-    setTimeout(() => {
+    try {
+      await signInWithGoogle()
       router.push("/onboarding")
-    }, 1000)
+    } catch (error) {
+      console.error("Login failed:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
+
 
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
