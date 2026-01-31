@@ -7,6 +7,32 @@ class UserBase(BaseModel):
     name: str
     preferred_language: str = "English"
 
+# Weather Response Schema
+class WeatherResponse(BaseModel):
+    temperature: float
+    feels_like: float
+    condition: str
+    humidity: int
+    wind_speed: float
+    rain_chance: int
+    rain_amount: Optional[str] = None
+    alert: Optional[str] = None
+
+# User Info Response for Dashboard Greeting
+class UserInfoResponse(BaseModel):
+    name: str
+    email: str
+    crop_type: Optional[str] = None
+    has_farm_profile: bool
+    preferred_language: str
+
+# Lifecycle Stage Schema
+class LifecycleStageResponse(BaseModel):
+    id: str
+    label: str
+    status: str  # completed, current, upcoming
+    date: str
+
 class UserCreate(UserBase):
     pass
 

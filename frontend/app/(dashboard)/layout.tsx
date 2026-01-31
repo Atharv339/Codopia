@@ -4,7 +4,7 @@ import React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   Leaf,
   LayoutDashboard,
@@ -14,11 +14,14 @@ import {
   User,
   Menu,
   X,
+  LogOut,
+  LogIn,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSelector } from "@/components/language-selector"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/lib/auth-context"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -34,7 +37,18 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { user, loading, logout } = useAuth()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      router.push("/auth/login")
+    } catch (error) {
+      console.error("Logout failed:", error)
+    }
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -133,13 +147,43 @@ export default function DashboardLayout({
           <div className="flex items-center gap-2">
             <LanguageSelector />
             <ThemeToggle />
-            <Link href="/profile">
-              <Button variant="ghost" size="icon" className="rounded-lg">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                  <User className="h-4 w-4" />
-                </div>
-              </Button>
-            </Link>
+            {loading ? (
+              <div className="h-8 w-8 animate-pulse rounded-full bg-muted"></div>
+            ) : user ? (
+              <div className="flex items-center gap-2">
+                <Link href="/profile">
+                  <Button variant="ghost" size="icon" className="rounded-lg">
+                    {user.photoURL ? (
+                      <img
+                        src={user.photoURL}
+                        alt={user.displayName || "User"}
+                        className="h-8 w-8 rounded-full"
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <User className="h-4 w-4" />
+                      </div>
+                    )}
+                  </Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-lg text-muted-foreground hover:text-destructive"
+                  onClick={handleLogout}
+                  title="Logout"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Link href="/auth/login">
+                <Button variant="outline" size="sm" className="gap-2 rounded-lg">
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
         </header>
 
